@@ -105,33 +105,33 @@ func ACL(path string) (bool, error) {
 		}
 		return false, err
 	}
-	
+
 	if size <= 0 {
 		return false, nil
 	}
-	
+
 	buf := make([]byte, size)
 	size, err = syscall.Listxattr(path, buf)
 	if err != nil {
 		return false, err
 	}
-	
+
 	var offset int
 	for offset < size {
 		end := offset
 		for end < size && buf[end] != 0 {
 			end++
 		}
-		
+
 		attrName := string(buf[offset:end])
-		
+
 		if attrName == "system.posix_acl_access" || attrName == "system.posix_acl_default" {
 			return true, nil
 		}
-		
+
 		offset = end + 1
 	}
-	
+
 	return false, nil
 }
 
@@ -220,7 +220,7 @@ func LongFormat(slice []LongFormatInfo, path string) {
 			}
 		}
 
-		acl ,err2 := ACL(path+"/"+item.FileName)
+		acl, err2 := ACL(path + "/" + item.FileName)
 
 		if err2 != nil {
 			fmt.Println(err2)

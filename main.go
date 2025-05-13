@@ -5,7 +5,6 @@ import (
 	"os"
 
 	myls "my-ls-1/Functions"
-	
 )
 
 func main() {
