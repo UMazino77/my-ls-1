@@ -68,9 +68,6 @@ func MyLs(path string, flags map[string]bool, totalPath int, rec bool) {
 		LongFormat(masterSlice, path)
 	} else {
 		ShortFormat(masterSlice, totalPath)
-		if flags["Recursive"] {
-			fmt.Println("")
-		}
 	}
 	if flags["Recursive"] {
 		for _, item := range masterSlice {

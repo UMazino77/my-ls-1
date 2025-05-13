@@ -10,12 +10,12 @@ import (
 )
 
 func AddSingleQuotes(name string) (bool, string) {
-	// runes := []rune{' ', '*', '?', '(', ')', '$', '\\', '\'', '&', '|', '<', '>', '~', '[', ']'}
-	// for _, r := range runes {
-	// 	if strings.ContainsRune(name, r) {
-	// 		return true, "'" + name + "'"
-	// 	}
-	// }
+	runes := []rune{' ', '*', '?', '(', ')', '$', '\\', '\'', '&', '|', '<', '>', '~', '[', ']'}
+	for _, r := range runes {
+		if strings.ContainsRune(name, r) {
+			return true, "'" + name + "'"
+		}
+	}
 	return false, name
 }
 
@@ -136,25 +136,25 @@ func ACL(path string) (bool, error) {
 }
 
 func Color(name string, permission any) string {
-	// /* for the string*/ red, cyan, green, blue, reset, yellow, white, black := "\033[1;31m", "\033[1;36m", "\033[1;32m", "\033[1;34m", "\033[1;m", "\033[1;33m", "\033[37m", "\033[30m"
-	// /* for the background*/ orangebg, yellowbg, blackbg := "\033[48;5;208m", "\033[48;5;226m", "\x1b[40m"
-	// if fmt.Sprintf("%s", permission)[0] == 'c' {
-	// 	return blackbg + yellow + name + reset
-	// } else if fmt.Sprintf("%s", permission)[0] == 'l' {
-	// 	return cyan + name + reset
-	// } else if fmt.Sprintf("%s", permission)[0] == 'd' {
-	// 	return blue + name + reset
-	// } else if fmt.Sprintf("%s", permission)[3] == 's' {
-	// 	return orangebg + white + name + reset
-	// } else if fmt.Sprintf("%s", permission)[6] == 's' {
-	// 	return yellowbg + black + name + reset
-	// } else if isArch(name) {
-	// 	return red + name + reset
-	// } else if fmt.Sprintf("%s", permission)[0] == '-' && fmt.Sprintf("%s", permission)[3] != 'x' {
-	// 	return name
-	// } else if fmt.Sprintf("%s", permission)[0] == '-' {
-	// 	return green + name + reset
-	// }
+	/* for the string*/ red, cyan, green, blue, reset, yellow, white, black := "\033[1;31m", "\033[1;36m", "\033[1;32m", "\033[1;34m", "\033[1;m", "\033[1;33m", "\033[37m", "\033[30m"
+	/* for the background*/ orangebg, yellowbg, blackbg := "\033[48;5;208m", "\033[48;5;226m", "\x1b[40m"
+	if fmt.Sprintf("%s", permission)[0] == 'c' {
+		return blackbg + yellow + name + reset
+	} else if fmt.Sprintf("%s", permission)[0] == 'l' {
+		return cyan + name + reset
+	} else if fmt.Sprintf("%s", permission)[0] == 'd' {
+		return blue + name + reset
+	} else if fmt.Sprintf("%s", permission)[3] == 's' {
+		return orangebg + white + name + reset
+	} else if fmt.Sprintf("%s", permission)[6] == 's' {
+		return yellowbg + black + name + reset
+	} else if isArch(name) {
+		return red + name + reset
+	} else if fmt.Sprintf("%s", permission)[0] == '-' && fmt.Sprintf("%s", permission)[3] != 'x' {
+		return name
+	} else if fmt.Sprintf("%s", permission)[0] == '-' {
+		return green + name + reset
+	}
 	return name
 }
 
