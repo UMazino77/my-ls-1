@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-func SplitPath(wd string,paths []string) ([]string, []string) {
+func SplitPath(paths []string) ([]string, []string) {
 	dirSlice, fileSlice := []string{}, []string{}
 	for _, path := range paths {
 		if _, err := os.ReadDir(path); err == nil {

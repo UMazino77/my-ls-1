@@ -97,7 +97,64 @@ func Minor(dev uint64) uint64 {
 	return (dev & 0xff) | ((dev >> 12) & 0xfff00)
 }
 
+func ACL(path string) (bool, error) {
+	size, err := syscall.Listxattr(path, nil)
+	if err != nil {
+		if err == syscall.ENOTSUP {
+			return false, nil
+		}
+		return false, err
+	}
+	
+	if size <= 0 {
+		return false, nil
+	}
+	
+	buf := make([]byte, size)
+	size, err = syscall.Listxattr(path, buf)
+	if err != nil {
+		return false, err
+	}
+	
+	var offset int
+	for offset < size {
+		end := offset
+		for end < size && buf[end] != 0 {
+			end++
+		}
+		
+		attrName := string(buf[offset:end])
+		
+		if attrName == "system.posix_acl_access" || attrName == "system.posix_acl_default" {
+			return true, nil
+		}
+		
+		offset = end + 1
+	}
+	
+	return false, nil
+}
+
 func Color(name string, permission any) string {
+	// /* for the string*/ red, cyan, green, blue, reset, yellow, white, black := "\033[1;31m", "\033[1;36m", "\033[1;32m", "\033[1;34m", "\033[1;m", "\033[1;33m", "\033[37m", "\033[30m"
+	// /* for the background*/ orangebg, yellowbg, blackbg := "\033[48;5;208m", "\033[48;5;226m", "\x1b[40m"
+	// if fmt.Sprintf("%s", permission)[0] == 'c' {
+	// 	return blackbg + yellow + name + reset
+	// } else if fmt.Sprintf("%s", permission)[0] == 'l' {
+	// 	return cyan + name + reset
+	// } else if fmt.Sprintf("%s", permission)[0] == 'd' {
+	// 	return blue + name + reset
+	// } else if fmt.Sprintf("%s", permission)[3] == 's' {
+	// 	return orangebg + white + name + reset
+	// } else if fmt.Sprintf("%s", permission)[6] == 's' {
+	// 	return yellowbg + black + name + reset
+	// } else if isArch(name) {
+	// 	return red + name + reset
+	// } else if fmt.Sprintf("%s", permission)[0] == '-' && fmt.Sprintf("%s", permission)[3] != 'x' {
+	// 	return name
+	// } else if fmt.Sprintf("%s", permission)[0] == '-' {
+	// 	return green + name + reset
+	// }
 	return name
 }
 
@@ -162,6 +219,18 @@ func LongFormat(slice []LongFormatInfo, path string) {
 				}
 			}
 		}
+
+		acl ,err2 := ACL(path+"/"+item.FileName)
+
+		if err2 != nil {
+			fmt.Println(err2)
+			os.Exit(1)
+		}
+
+		if acl {
+			k = append(k, '+')
+		}
+
 		l := formattime(item.Time)
 		fmt.Printf("%-*s %*s %-*s %-*s ",
 			a[0], string(k),
@@ -175,7 +244,7 @@ func LongFormat(slice []LongFormatInfo, path string) {
 		fmt.Printf("%*s %-*s ",
 			a[4], minor,
 			a[5], l)
-			target, err := os.Readlink(z)
+		target, err := os.Readlink(z)
 		if !c || (c && item.FileName[0] == '\'') {
 			if err != nil {
 				fmt.Printf("%s\n", Color(item.FileName, string(k)))
@@ -195,9 +264,7 @@ func LongFormat(slice []LongFormatInfo, path string) {
 func ShortFormat(masterSlice []LongFormatInfo, file int) {
 	for _, item := range masterSlice {
 		_, item.FileName = AddSingleQuotes(item.FileName)
-	fmt.Printf("%v  ", Color(item.FileName, item.Permissions))
+		fmt.Printf("%v  ", Color(item.FileName, item.Permissions))
 	}
-	if len(masterSlice) != 0 && file != -1 {
-		fmt.Println()
-	}
+	fmt.Println()
 }
