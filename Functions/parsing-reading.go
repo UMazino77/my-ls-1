@@ -34,7 +34,7 @@ func ParseArgs(args []string) ([]string,map[string]bool) {
 		} else {
 			paths = append(paths, arg)
 		}
-	}
+	}							
 	return paths, flags
 }
 
@@ -85,3 +85,4 @@ func HidenDirectories(path string,List []os.FileInfo) ([]os.FileInfo, error) {
     }
     return append(List, currentDir, parentDir), nil
 }
+			

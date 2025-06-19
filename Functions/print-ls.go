@@ -10,12 +10,12 @@ import (
 )
 
 func AddSingleQuotes(name string) (bool, string) {
-	runes := []rune{' ', '*', '?', '(', ')', '$', '\\', '\'', '&', '|', '<', '>', '~', '[', ']'}
-	for _, r := range runes {
-		if strings.ContainsRune(name, r) {
-			return true, "'" + name + "'"
-		}
-	}
+	// runes := []rune{' ', '*', '?', '(', ')', '$', '\\', '\'', '&', '|', '<', '>', '~', '[', ']'}
+	// for _, r := range runes {
+	// 	if strings.ContainsRune(name, r) {
+	// 		return true, "'" + name + "'"
+	// 	}
+	// }
 	return false, name
 }
 
@@ -30,7 +30,9 @@ func isBlockDevice(path string) (bool, error) {
 func maxlen(path string, slice []LongFormatInfo) (bool, []int, bool) {
 	a := false
 	major, minor, k := "", "", false
+	// jj := ""
 	max0, max1, max2, max3, max4, max5, max6 := 0, 0, 0, 0, 0, 0, 0
+	// t := ""
 	for _, v := range slice {
 		info, err := os.Stat(path + "/" + v.FileName)
 		if err == nil {
@@ -56,6 +58,8 @@ func maxlen(path string, slice []LongFormatInfo) (bool, []int, bool) {
 		}
 		if len(strings.ToLower(fmt.Sprintf("%v", v.Permissions))) > max0 {
 			max0 = len(strings.ToLower(fmt.Sprintf("%v", v.Permissions)))
+			// t = (strings.ToLower(fmt.Sprintf("%v", v.Permissions)))
+			// jj = v.FileName
 		}
 		if len(v.NumberLinks) > max1 {
 			max1 = len(v.NumberLinks)
@@ -76,10 +80,11 @@ func maxlen(path string, slice []LongFormatInfo) (bool, []int, bool) {
 			a = true
 		}
 	}
+	// fmt.Println(max0, t, jj, "--------")
 	return a, []int{max0, max1, max2, max3, max4, max5, max6}, k
 }
 
-func isArch(s string) bool {
+func IsArch(s string) bool {
 	a := []string{".zip", ".tar.gz"}
 	for _, v := range a {
 		if strings.HasSuffix(s, v) {
@@ -136,25 +141,25 @@ func ACL(path string) (bool, error) {
 }
 
 func Color(name string, permission any) string {
-	/* for the string*/ red, cyan, green, blue, reset, yellow, white, black := "\033[1;31m", "\033[1;36m", "\033[1;32m", "\033[1;34m", "\033[1;m", "\033[1;33m", "\033[37m", "\033[30m"
-	/* for the background*/ orangebg, yellowbg, blackbg := "\033[48;5;208m", "\033[48;5;226m", "\x1b[40m"
-	if fmt.Sprintf("%s", permission)[0] == 'c' {
-		return blackbg + yellow + name + reset
-	} else if fmt.Sprintf("%s", permission)[0] == 'l' {
-		return cyan + name + reset
-	} else if fmt.Sprintf("%s", permission)[0] == 'd' {
-		return blue + name + reset
-	} else if fmt.Sprintf("%s", permission)[3] == 's' {
-		return orangebg + white + name + reset
-	} else if fmt.Sprintf("%s", permission)[6] == 's' {
-		return yellowbg + black + name + reset
-	} else if isArch(name) {
-		return red + name + reset
-	} else if fmt.Sprintf("%s", permission)[0] == '-' && fmt.Sprintf("%s", permission)[3] != 'x' {
-		return name
-	} else if fmt.Sprintf("%s", permission)[0] == '-' {
-		return green + name + reset
-	}
+	// /* for the string*/ red, cyan, green, blue, reset, yellow, white, black := "\033[1;31m", "\033[1;36m", "\033[1;32m", "\033[1;34m", "\033[1;m", "\033[1;33m", "\033[37m", "\033[30m"
+	// /* for the background*/ orangebg, yellowbg, blackbg := "\033[48;5;208m", "\033[48;5;226m", "\x1b[40m"
+	// if fmt.Sprintf("%s", permission)[0] == 'c' {
+	// 	return blackbg + yellow + name + reset
+	// } else if fmt.Sprintf("%s", permission)[0] == 'l' {
+	// 	return cyan + name + reset
+	// } else if fmt.Sprintf("%s", permission)[0] == 'd' {
+	// 	return blue + name + reset
+	// } else if fmt.Sprintf("%s", permission)[3] == 's' {
+	// 	return orangebg + white + name + reset
+	// } else if fmt.Sprintf("%s", permission)[6] == 's' {
+	// 	return yellowbg + black + name + reset
+	// } else if isArch(name) {
+	// 	return red + name + reset
+	// } else if fmt.Sprintf("%s", permission)[0] == '-' && fmt.Sprintf("%s", permission)[3] != 'x' {
+	// 	return name
+	// } else if fmt.Sprintf("%s", permission)[0] == '-' {
+	// 	return green + name + reset
+	// }
 	return name
 }
 
@@ -171,8 +176,6 @@ func formattime(z time.Time) string {
 }
 
 func LongFormat(slice []LongFormatInfo, path string) {
-	c, a, w := maxlen(path, slice)
-
 	d := map[byte]int{'u': 3, 'g': 6, 'o': 9}
 	for _, item := range slice {
 		z := JoinPaths(path, item.FileName)
@@ -220,7 +223,16 @@ func LongFormat(slice []LongFormatInfo, path string) {
 			}
 		}
 
-		acl, err2 := ACL(path + "/" + item.FileName)
+		jjj := 0
+
+		var acl bool
+		var err2 error
+
+		if _, err := os.ReadDir(path); err != nil {
+			acl, err2 = ACL(item.FileName)
+		} else {
+			acl, err2 = ACL(path + "/" + item.FileName)
+		}
 
 		if err2 != nil {
 			fmt.Println(err2)
@@ -230,8 +242,13 @@ func LongFormat(slice []LongFormatInfo, path string) {
 		if acl {
 			k = append(k, '+')
 		}
-
 		l := formattime(item.Time)
+		if len(permissions) > jjj {
+			jjj = len(permissions)
+		}
+		c, a, w := maxlen(path, slice)
+		a[0] = jjj
+
 		fmt.Printf("%-*s %*s %-*s %-*s ",
 			a[0], string(k),
 			a[1], item.NumberLinks,
